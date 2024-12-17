@@ -223,3 +223,50 @@ Set up an RDS instance with MySQL in a Multi-AZ configuration to ensure high ava
 3. **Set Up Security Groups:**
    - Define security groups to control access to your RDS instance.
    - Allow traffic from your web server instances to the RDS instance.
+
+### Sprint 5: Deploy WordPress (Without S3 Bucket)
+- **Objective**: Deploy WordPress directly on the EC2 instances and connect it to the RDS database.
+- **Tasks**:
+  1. **Prepare the EC2 Instances**:
+     - Use Terraform to define the necessary configurations for your EC2 instances.
+     - Write a user data script in Terraform to install the necessary software (Apache/Nginx, PHP, and MySQL client) during the instance boot.
+
+  2. **Install WordPress**:
+     - In the user data script, include commands to download the latest WordPress package directly from the [official WordPress website](https://wordpress.org/download/).
+     - Unzip and move the WordPress files to the web server's root directory (e.g., `/var/www/html`).
+
+  3. **Configure WordPress**:
+     - In the user data script, create a wp-config.php file with database connection details, pointing to your RDS instance.
+     - Set necessary file permissions for WordPress to operate correctly.
+
+  4. **Finalize Configuration**:
+     - Ensure all necessary security groups are set up to allow traffic to your EC2 instances and RDS database.
+     - Verify that WordPress is up and running by accessing your website's URL.
+
+Here is an example of a user data script for installing WordPress directly on an EC2 instance:
+
+```bash
+#!/bin/bash
+yum update -y
+yum install -y httpd php php-mysqlnd
+service httpd start
+chkconfig httpd on
+cd /var/www/html
+wget https://wordpress.org/latest.tar.gz
+tar -xzf latest.tar.gz
+mv wordpress/* .
+rmdir wordpress
+rm latest.tar.gz
+cp wp-config-sample.php wp-config.php
+# Replace database details with your RDS configuration
+sed -i 's/database_name_here/YOUR_DB_NAME/' wp-config.php
+sed -i 's/username_here/YOUR_DB_USER/' wp-config.php
+sed -i 's/password_here/YOUR_DB_PASSWORD/' wp-config.php
+sed -i 's/localhost/YOUR_RDS_ENDPOINT/' wp-config.php
+chown -R apache:apache /var/www/html
+chmod -R 755 /var/www/html
+```
+
+Replace `YOUR_DB_NAME`, `YOUR_DB_USER`, `YOUR_DB_PASSWORD`, and `YOUR_RDS_ENDPOINT` with your actual database details. This script will install Apache, PHP, download WordPress, configure it, and set the required permissions.
+
+This way, you can avoid using an S3 bucket and still deploy WordPress effectively.
