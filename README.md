@@ -70,8 +70,6 @@
 - **Security**:
   - Verify access restrictions through Security Groups.
 
-
-
 ### Implementation Phase
 
 #### Sprint 1: Create the VPC
@@ -113,3 +111,102 @@
   - Ensure all necessary permissions and security groups are in place.
 
 Each sprint builds on the previous one, leading to a fully deployed and functional WordPress website by the end of the Implementation Phase. This structured approach ensures that all components are correctly set up and integrated.
+
+### Sprint 1: Create the VPC
+
+#### **Objective:**
+Set up the Virtual Private Cloud (VPC) and networking components necessary for your WordPress deployment.
+
+#### **Tasks:**
+
+1. **Define the VPC:**
+   - Create a new VPC.
+   - Specify the CIDR block for the VPC (e.g., `10.0.0.0/16`).
+
+2. **Create Subnets:**
+   - Create public subnets in different Availability Zones.
+   - Create private subnets in different Availability Zones.
+
+3. **Set Up Route Tables:**
+   - Create a route table for the public subnets and associate it with an internet gateway.
+   - Create a route table for the private subnets and configure it to route traffic through a NAT gateway (if needed).
+
+4. **Create and Attach an Internet Gateway:**
+   - Create an internet gateway and attach it to your VPC.
+   - Update the public route table to route outbound traffic to the internet gateway.
+
+5. **Create a NAT Gateway (Optional):**
+   - If your private subnets need internet access, create a NAT gateway in one of the public subnets.
+   - Update the private route table to route outbound traffic to the NAT gateway.
+
+### Terraform Configuration Example:
+
+Here's an example of a Terraform configuration for creating a VPC, subnets, and an internet gateway:
+
+```hcl
+provider "aws" {
+  region = "us-west-2"
+}
+
+resource "aws_vpc" "main" {
+  cidr_block = "10.0.0.0/16"
+  tags = {
+    Name = "main-vpc"
+  }
+}
+
+resource "aws_subnet" "public_1" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.1.0/24"
+  availability_zone = "us-west-2a"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "public-subnet-1"
+  }
+}
+
+resource "aws_subnet" "public_2" {
+  vpc_id     = aws_vpc.main.id
+  cidr_block = "10.0.2.0/24"
+  availability_zone = "us-west-2b"
+  map_public_ip_on_launch = true
+  tags = {
+    Name = "public-subnet-2"
+  }
+}
+
+resource "aws_internet_gateway" "main" {
+  vpc_id = aws_vpc.main.id
+  tags = {
+    Name = "main-gateway"
+  }
+}
+
+resource "aws_route_table" "public" {
+  vpc_id = aws_vpc.main.id
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.main.id
+  }
+  tags = {
+    Name = "public-route-table"
+  }
+}
+
+resource "aws_route_table_association" "public_1" {
+  subnet_id      = aws_subnet.public_1.id
+  route_table_id = aws_route_table.public.id
+}
+
+resource "aws_route_table_association" "public_2" {
+  subnet_id      = aws_subnet.public_2.id
+  route_table_id = aws_route_table.public.id
+}
+```
+
+### Explanation:
+- **VPC**: Defines the main VPC with a CIDR block of `10.0.0.0/16`.
+- **Subnets**: Creates two public subnets in different Availability Zones (`us-west-2a` and `us-west-2b`) with CIDR blocks `10.0.1.0/24` and `10.0.2.0/24` respectively.
+- **Internet Gateway**: Creates an internet gateway and attaches it to the VPC.
+- **Route Table**: Creates a public route table that routes all outbound traffic (`0.0.0.0/0`) to the internet gateway.
+- **Route Table Association**: Associates the public subnets with the public route table.
