@@ -69,3 +69,47 @@
 
 - **Security**:
   - Verify access restrictions through Security Groups.
+
+
+
+### Implementation Phase
+
+#### Sprint 1: Create the VPC
+- **Objective**: Set up the Virtual Private Cloud (VPC) and networking.
+- **Tasks**:
+  - Define the VPC in a Terraform configuration file.
+  - Create public and private subnets.
+  - Set up route tables and associate them with the subnets.
+  - Create and attach an internet gateway to the VPC for internet access.
+
+#### Sprint 2: Deploy EC2 and Auto Scaling Groups
+- **Objective**: Launch EC2 instances and set up Auto Scaling.
+- **Tasks**:
+  - Use Terraform to define EC2 instances in the configuration files.
+  - Create an Auto Scaling Group with a launch configuration or template.
+  - Define scaling policies to automatically adjust the number of instances based on load.
+
+#### Sprint 3: Configure the Load Balancer
+- **Objective**: Set up the Application Load Balancer (ALB).
+- **Tasks**:
+  - Define the ALB in the Terraform configuration files.
+  - Create target groups for the EC2 instances.
+  - Set up listeners and listener rules to forward traffic to the target groups.
+  - Attach Security Groups to the ALB to control traffic flow.
+
+#### Sprint 4: Deploy the MySQL Database
+- **Objective**: Set up an RDS instance for the WordPress database.
+- **Tasks**:
+  - Use Terraform to define the RDS instance with Multi-AZ deployment.
+  - Configure database parameters for optimal performance and security.
+  - Set up database security groups to allow traffic from the web server instances.
+
+#### Sprint 5: Deploy WordPress
+- **Objective**: Deploy WordPress on the EC2 instances and connect it to the RDS database.
+- **Tasks**:
+  - Use an S3 bucket to store WordPress installation files.
+  - Write a user data script in Terraform to install and configure WordPress during the instance boot.
+  - Configure WordPress to connect to the RDS database for data storage.
+  - Ensure all necessary permissions and security groups are in place.
+
+Each sprint builds on the previous one, leading to a fully deployed and functional WordPress website by the end of the Implementation Phase. This structured approach ensures that all components are correctly set up and integrated.
