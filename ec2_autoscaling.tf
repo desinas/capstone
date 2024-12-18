@@ -38,14 +38,7 @@ resource "aws_autoscaling_group" "asg" {
   desired_capacity     = 1
   vpc_zone_identifier  = [aws_subnet.public_1.id, aws_subnet.public_2.id]
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "web-asg"
-      propagate_at_launch = true
-    }
-  ]
-}
+
 
 resource "aws_security_group" "web" {
   vpc_id = aws_vpc.main.id
