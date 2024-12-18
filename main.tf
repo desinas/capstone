@@ -255,13 +255,12 @@ resource "aws_rds_cluster" "wordpress_db_cluster" {
   }
 }
 
-# Aurora RDS Cluster Instance (specify the DB name in the instance)
+# Aurora RDS Cluster Instance (no db_name here)
 resource "aws_rds_cluster_instance" "wordpress_db_instance" {
   cluster_identifier   = aws_rds_cluster.wordpress_db_cluster.id
   instance_class       = var.db_instance_class
   engine               = "aurora-mysql"
   publicly_accessible  = false
-  db_name              = var.db_name  # Specify the DB name here in the cluster instance
 
   tags = {
     Name = "wordpress-aurora-instance"
