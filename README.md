@@ -1,3 +1,4 @@
+![design](/AWSinfrastructureWPress.pdf)
 ### 1. Introduction Phase
 - **Architecture Overview**:
   - **VPC Setup**: Virtual Private Cloud (VPC) divided into public and private subnets for better security and control.
