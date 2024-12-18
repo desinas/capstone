@@ -130,13 +130,7 @@ resource "aws_autoscaling_group" "wordpress_asg" {
 
   target_group_arns = [aws_lb_target_group.wordpress_tg.arn] # Attach target group here
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "wordpress-asg-instance"
-      propagate_at_launch = true
-    }
-  ]
+
 
   lifecycle {
     create_before_destroy = true
