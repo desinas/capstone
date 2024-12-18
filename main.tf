@@ -120,19 +120,7 @@ resource "aws_security_group" "ec2" {
 
 
 # Scaling Policy
-resource "aws_autoscaling_policy" "scale_out" {
-  name                   = "scale-out"
-  scaling_adjustment     = 1
-  adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
-}
 
-resource "aws_autoscaling_policy" "scale_in" {
-  name                   = "scale-in"
-  scaling_adjustment     = -1
-  adjustment_type        = "ChangeInCapacity"
-  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
-}
 
 # Security Group for ALB
 resource "aws_security_group" "alb" {
