@@ -128,15 +128,13 @@ resource "aws_autoscaling_group" "wordpress_asg" {
   desired_capacity = 2
   vpc_zone_identifier = aws_subnet.public.*.id
 
-  target_group_arns = [aws_lb_target_group.wordpress_tg.arn] # Attach target group here
+  target_group_arns = [aws_lb_target_group.wordpress_tg.arn]
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "wordpress-asg-instance"
-      propagate_at_launch = true
-    }
-  ]
+  tag {
+    key                 = "Name"
+    value               = "wordpress-asg-instance"
+    propagate_at_launch = true
+  }
 
   lifecycle {
     create_before_destroy = true
