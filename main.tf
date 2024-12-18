@@ -117,29 +117,7 @@ resource "aws_security_group" "ec2" {
 }
 
 # Auto Scaling Group (update to include target group attachment)
-resource "aws_autoscaling_group" "wordpress_asg" {
-  launch_template {
-    id      = aws_launch_template.wordpress_lt.id
-    version = "$Latest"
-  }
 
-  min_size         = 1
-  max_size         = 4
-  desired_capacity = 2
-  vpc_zone_identifier = aws_subnet.public.*.id
-
-  target_group_arns = [aws_lb_target_group.wordpress_tg.arn]
-
-  tag {
-    key                 = "Name"
-    value               = "wordpress-asg-instance"
-    propagate_at_launch = true
-  }
-
-  lifecycle {
-    create_before_destroy = true
-  }
-}
 
 # Scaling Policy
 resource "aws_autoscaling_policy" "scale_out" {
