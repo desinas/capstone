@@ -193,3 +193,55 @@ resource "aws_lb_listener" "http_listener" {
     target_group_arn = aws_lb_target_group.wordpress_tg.arn
   }
 }
+
+# Security Group for RDS
+resource "aws_security_group" "rds" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    security_groups = [aws_security_group.app.id] # Allow access from the App Security Group
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "wordpress-rds-sg"
+  }
+}
+
+# RDS Instance
+resource "aws_db_instance" "wordpress_db" {
+  allocated_storage    = var.db_allocated_storage
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = var.db_instance_class
+  name                 = var.db_name
+  username             = var.db_user
+  password             = var.db_password
+  multi_az             = true
+  publicly_accessible  = false
+  vpc_security_group_ids = [aws_security_group.rds.id]
+  db_subnet_group_name = aws_db_subnet_group.wordpress_db_subnet_group.name
+
+  tags = {
+    Name = "wordpress-rds"
+  }
+}
+
+# DB Subnet Group
+resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
+  name       = "wordpress-db-subnet-group"
+  subnet_ids = aws_subnet.private.*.id
+
+  tags = {
+    Name = "wordpress-db-subnet-group"
+  }
+}
