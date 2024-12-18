@@ -240,13 +240,12 @@ resource "aws_security_group" "rds" {
   }
 }
 
-# Aurora RDS Cluster
+# Aurora RDS Cluster (no db_name or initial_database_name)
 resource "aws_rds_cluster" "wordpress_db_cluster" {
   engine               = "aurora-mysql"
   engine_version       = "5.7.mysql_aurora.2.10.1"  # MySQL 5.7-compatible Aurora
   master_username      = var.db_user
   master_password      = var.db_password
-  initial_database_name = var.db_name  # Use this instead of db_name
   storage_encrypted    = true
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name = aws_db_subnet_group.wordpress_db_subnet_group.name
@@ -256,19 +255,20 @@ resource "aws_rds_cluster" "wordpress_db_cluster" {
   }
 }
 
-# Aurora RDS Cluster Instance
+# Aurora RDS Cluster Instance (specify the DB name in the instance)
 resource "aws_rds_cluster_instance" "wordpress_db_instance" {
   cluster_identifier   = aws_rds_cluster.wordpress_db_cluster.id
   instance_class       = var.db_instance_class
   engine               = "aurora-mysql"
   publicly_accessible  = false
+  db_name              = var.db_name  # Specify the DB name here in the cluster instance
 
   tags = {
     Name = "wordpress-aurora-instance"
   }
 }
 
-# DB Subnet Group (same as before)
+# DB Subnet Group
 resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
   name       = "wordpress-db-subnet-group"
   subnet_ids = aws_subnet.private.*.id
