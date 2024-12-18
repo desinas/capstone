@@ -240,22 +240,32 @@ resource "aws_security_group" "rds" {
   }
 }
 
-# RDS Instance
-resource "aws_db_instance" "wordpress_db" {
-  allocated_storage    = var.db_allocated_storage
-  engine               = "mysql"
-  engine_version       = "8.0.23"  # Change to a supported version
-  instance_class       = var.db_instance_class
+# Aurora RDS Cluster
+resource "aws_rds_cluster" "wordpress_db_cluster" {
+  engine               = "aurora-mysql"
+  engine_version       = "5.7.mysql_aurora.2.10.1"  # MySQL 5.7-compatible Aurora
+  master_username      = var.db_user
+  master_password      = var.db_password
   db_name              = var.db_name
-  username             = var.db_user
-  password             = var.db_password
   multi_az             = true
-  publicly_accessible  = false
+  storage_encrypted    = true
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name = aws_db_subnet_group.wordpress_db_subnet_group.name
 
   tags = {
-    Name = "wordpress-rds"
+    Name = "wordpress-aurora-cluster"
+  }
+}
+
+# Aurora RDS Cluster Instance
+resource "aws_rds_cluster_instance" "wordpress_db_instance" {
+  cluster_identifier   = aws_rds_cluster.wordpress_db_cluster.id
+  instance_class       = var.db_instance_class
+  engine               = "aurora-mysql"
+  publicly_accessible  = false
+
+  tags = {
+    Name = "wordpress-aurora-instance"
   }
 }
 
