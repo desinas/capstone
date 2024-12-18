@@ -128,13 +128,7 @@ resource "aws_autoscaling_group" "wordpress_asg" {
   desired_capacity = 2
   vpc_zone_identifier = aws_subnet.public.*.id
 
-  tags = [
-    {
-      key                 = "Name"
-      value               = "wordpress-asg-instance"
-      propagate_at_launch = true
-    }
-  ]
+
 
   lifecycle {
     create_before_destroy = true
