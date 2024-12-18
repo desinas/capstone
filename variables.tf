@@ -25,3 +25,23 @@ variable "key_name" {
 variable "alb_name" {
   default = "wordpress-alb"
 }
+
+variable "db_name" {
+  default = "wordpress_db"
+}
+
+variable "db_user" {
+  default = "admin"
+}
+
+variable "db_password" {
+  default = "securepassword"
+}
+
+variable "db_instance_class" {
+  default = "db.t2.micro"
+}
+
+variable "db_allocated_storage" {
+  default = 20
+}
