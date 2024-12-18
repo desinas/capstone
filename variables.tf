@@ -21,3 +21,7 @@ variable "instance_type" {
 variable "key_name" {
   default = "vockey"
 }
+
+variable "alb_name" {
+  default = "wordpress-alb"
+}
