@@ -55,3 +55,103 @@ resource "aws_route_table_association" "public" {
   subnet_id      = element(aws_subnet.public.*.id, count.index)
   route_table_id = aws_route_table.public.id
 }
+
+# Launch Template
+resource "aws_launch_template" "wordpress_lt" {
+  name          = "wordpress-launch-template"
+  image_id      = var.ami_id
+  instance_type = var.instance_type
+  key_name      = var.key_name
+
+  user_data = base64encode(<<-EOF
+              #!/bin/bash
+              yum update -y
+              yum install -y httpd
+              systemctl start httpd
+              systemctl enable httpd
+              echo "Welcome to WordPress Auto Scaling Instance" > /var/www/html/index.html
+              EOF
+  )
+
+  network_interfaces {
+    associate_public_ip_address = true
+    security_groups             = [aws_security_group.ec2.id]
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name = "wordpress-instance"
+    }
+  }
+}
+
+# Security Group for EC2
+resource "aws_security_group" "ec2" {
+  vpc_id = aws_vpc.main.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "wordpress-ec2-sg"
+  }
+}
+
+# Auto Scaling Group
+resource "aws_autoscaling_group" "wordpress_asg" {
+  launch_template {
+    id      = aws_launch_template.wordpress_lt.id
+    version = "$Latest"
+  }
+
+  min_size         = 1
+  max_size         = 4
+  desired_capacity = 2
+  vpc_zone_identifier = aws_subnet.public.*.id
+
+  tags = [
+    {
+      key                 = "Name"
+      value               = "wordpress-asg-instance"
+      propagate_at_launch = true
+    }
+  ]
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+# Scaling Policy
+resource "aws_autoscaling_policy" "scale_out" {
+  name                   = "scale-out"
+  scaling_adjustment     = 1
+  adjustment_type        = "ChangeInCapacity"
+  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
+}
+
+resource "aws_autoscaling_policy" "scale_in" {
+  name                   = "scale-in"
+  scaling_adjustment     = -1
+  adjustment_type        = "ChangeInCapacity"
+  autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
+}
