@@ -1,5 +1,5 @@
 resource "aws_instance" "web" {
-  ami           = "ami-12345678"
+  ami           = "ami-061dd8b45bc7deb3d"
   instance_type = "t2.micro"
   key_name      = "my-key-pair"
   vpc_security_group_ids = [aws_security_group.web.id]
