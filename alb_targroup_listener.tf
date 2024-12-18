@@ -1,7 +1,3 @@
-provider "aws" {
-  region = "us-west-2"
-}
-
 resource "aws_lb" "main" {
   name               = "main-lb"
   internal           = false
