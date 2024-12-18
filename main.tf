@@ -246,7 +246,7 @@ resource "aws_db_instance" "wordpress_db" {
   engine               = "mysql"
   engine_version       = "8.0"
   instance_class       = var.db_instance_class
-  name                 = var.db_name
+  db_name              = var.db_name  # Corrected argument
   username             = var.db_user
   password             = var.db_password
   multi_az             = true
@@ -258,7 +258,6 @@ resource "aws_db_instance" "wordpress_db" {
     Name = "wordpress-rds"
   }
 }
-
 # DB Subnet Group
 resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
   name       = "wordpress-db-subnet-group"
