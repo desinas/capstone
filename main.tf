@@ -244,7 +244,7 @@ resource "aws_security_group" "rds" {
 resource "aws_db_instance" "wordpress_db" {
   allocated_storage    = var.db_allocated_storage
   engine               = "mysql"
-  engine_version       = "5.7"  # Change to a supported version
+  engine_version       = "8.0.23"  # Change to a supported version
   instance_class       = var.db_instance_class
   db_name              = var.db_name
   username             = var.db_user
