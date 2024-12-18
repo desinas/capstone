@@ -227,5 +227,5 @@ resource "aws_lb_listener" "http_listener" {
 # Attach Auto Scaling Group to Target Group
 resource "aws_autoscaling_attachment" "asg_tg_attachment" {
   autoscaling_group_name = aws_autoscaling_group.wordpress_asg.name
-
+  target_group_arn       = aws_lb_target_group.wordpress_tg.arn
 }
