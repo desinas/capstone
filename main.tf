@@ -225,7 +225,7 @@ resource "aws_security_group" "rds" {
     from_port            = 3306
     to_port              = 3306
     protocol             = "tcp"
-    security_groups     = [aws_security_group.app.id] # Allow access from the App Security Group
+    security_groups     = [aws_security_group.app.id]  # Allow access from the App Security Group
   }
 
   egress {
@@ -246,8 +246,7 @@ resource "aws_rds_cluster" "wordpress_db_cluster" {
   engine_version       = "5.7.mysql_aurora.2.10.1"  # MySQL 5.7-compatible Aurora
   master_username      = var.db_user
   master_password      = var.db_password
-  db_name              = var.db_name
-  multi_az             = true
+  initial_database_name = var.db_name  # Use this instead of db_name
   storage_encrypted    = true
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name = aws_db_subnet_group.wordpress_db_subnet_group.name
@@ -269,7 +268,7 @@ resource "aws_rds_cluster_instance" "wordpress_db_instance" {
   }
 }
 
-# DB Subnet Group
+# DB Subnet Group (same as before)
 resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
   name       = "wordpress-db-subnet-group"
   subnet_ids = aws_subnet.private.*.id
