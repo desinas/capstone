@@ -37,7 +37,7 @@ resource "aws_autoscaling_group" "asg" {
   max_size             = 3
   desired_capacity     = 1
   vpc_zone_identifier  = [aws_subnet.public_1.id, aws_subnet.public_2.id]
-
+}
 
 
 resource "aws_security_group" "web" {
