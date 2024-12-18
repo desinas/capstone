@@ -244,9 +244,9 @@ resource "aws_security_group" "rds" {
 resource "aws_db_instance" "wordpress_db" {
   allocated_storage    = var.db_allocated_storage
   engine               = "mysql"
-  engine_version       = "8.0"
+  engine_version       = "5.7"  # Change to a supported version
   instance_class       = var.db_instance_class
-  db_name              = var.db_name  # Corrected argument
+  db_name              = var.db_name
   username             = var.db_user
   password             = var.db_password
   multi_az             = true
@@ -258,6 +258,7 @@ resource "aws_db_instance" "wordpress_db" {
     Name = "wordpress-rds"
   }
 }
+
 # DB Subnet Group
 resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
   name       = "wordpress-db-subnet-group"
