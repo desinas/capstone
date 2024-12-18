@@ -217,15 +217,54 @@ resource "aws_lb_listener" "http_listener" {
   }
 }
 
-# Security Group for RDS
-resource "aws_security_group" "rds" {
+resource "aws_rds_cluster" "wordpress_db_cluster" {
+  cluster_identifier      = "wordpress-db-cluster"
+  engine                  = "aurora-mysql"
+  engine_version          = "5.7.mysql_aurora.2.10.2" # Update the version here
+  master_username         = "admin"
+  master_password         = "yourpassword"
+  backup_retention_period = 7
+  preferred_backup_window = "07:00-09:00"
+  vpc_security_group_ids  = [aws_security_group.db.id]
+  db_subnet_group_name    = aws_db_subnet_group.main.name
+
+  tags = {
+    Name = "wordpress-db-cluster"
+  }
+}
+
+resource "aws_db_instance" "wordpress_db_instance" {
+  identifier              = "wordpress-db-instance"
+  cluster_identifier      = aws_rds_cluster.wordpress_db_cluster.id
+  instance_class          = "db.t2.small"
+  engine                  = aws_rds_cluster.wordpress_db_cluster.engine
+  engine_version          = aws_rds_cluster.wordpress_db_cluster.engine_version
+  db_subnet_group_name    = aws_rds_cluster.wordpress_db_cluster.db_subnet_group_name
+  vpc_security_group_ids  = aws_rds_cluster.wordpress_db_cluster.vpc_security_group_ids
+  publicly_accessible     = false
+
+  tags = {
+    Name = "wordpress-db-instance"
+  }
+}
+
+resource "aws_db_subnet_group" "main" {
+  name       = "main"
+  subnet_ids = [aws_subnet.private_1.id, aws_subnet.private_2.id]
+
+  tags = {
+    Name = "main"
+  }
+}
+
+resource "aws_security_group" "db" {
   vpc_id = aws_vpc.main.id
 
   ingress {
-    from_port            = 3306
-    to_port              = 3306
-    protocol             = "tcp"
-    security_groups     = [aws_security_group.app.id]  # Allow access from the App Security Group
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["10.0.0.0/16"] # Adjust this to restrict access as needed
   }
 
   egress {
@@ -236,43 +275,6 @@ resource "aws_security_group" "rds" {
   }
 
   tags = {
-    Name = "wordpress-rds-sg"
-  }
-}
-
-# Aurora RDS Cluster (no db_name or initial_database_name)
-resource "aws_rds_cluster" "wordpress_db_cluster" {
-  engine               = "aurora-mysql"
-  engine_version       = "5.7.mysql_aurora.2.10.1"  # MySQL 5.7-compatible Aurora
-  master_username      = var.db_user
-  master_password      = var.db_password
-  storage_encrypted    = true
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  db_subnet_group_name = aws_db_subnet_group.wordpress_db_subnet_group.name
-
-  tags = {
-    Name = "wordpress-aurora-cluster"
-  }
-}
-
-# Aurora RDS Cluster Instance (no db_name here)
-resource "aws_rds_cluster_instance" "wordpress_db_instance" {
-  cluster_identifier   = aws_rds_cluster.wordpress_db_cluster.id
-  instance_class       = var.db_instance_class
-  engine               = "aurora-mysql"
-  publicly_accessible  = false
-
-  tags = {
-    Name = "wordpress-aurora-instance"
-  }
-}
-
-# DB Subnet Group
-resource "aws_db_subnet_group" "wordpress_db_subnet_group" {
-  name       = "wordpress-db-subnet-group"
-  subnet_ids = aws_subnet.private.*.id
-
-  tags = {
-    Name = "wordpress-db-subnet-group"
+    Name = "db-sg"
   }
 }
